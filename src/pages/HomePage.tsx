@@ -49,8 +49,6 @@ const HomePage: React.FC = () => {
               </div>
             </div>
           </div>
-            </p>
-          </div>
 
           <div className="bg-gray-800/40 backdrop-blur-sm border border-gray-700/30 rounded-2xl p-6 transition-all duration-300 active:scale-95">
             <div className="flex items-center space-x-4">
