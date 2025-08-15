@@ -1,80 +1,166 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Search, BookOpen, Sparkles, Zap, Users, Brain } from 'lucide-react';
+import { Play, MoreHorizontal } from 'lucide-react';
+import { useBooks } from '../contexts/BookContext';
 
 const HomePage: React.FC = () => {
+  const { books } = useBooks();
+
+  const quickPicks = books.slice(0, 6);
+  const recentlyPlayed = books.slice(0, 4);
+  const madeForYou = books.slice(1, 5);
+
   return (
-    <div className="min-h-screen flex flex-col justify-center relative overflow-hidden pb-20">
-      {/* Animated Background Particles */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-blue-400/40 rounded-full animate-float" />
-        <div className="absolute top-1/3 right-1/3 w-3 h-3 bg-purple-400/30 rounded-full animate-float-delay-1" />
-        <div className="absolute bottom-1/3 left-1/3 w-2 h-2 bg-pink-400/35 rounded-full animate-float-delay-2" />
-        <div className="absolute top-2/3 right-1/4 w-1 h-1 bg-blue-300/40 rounded-full animate-float" />
-      </div>
-      
-      <div className="relative z-10 text-center px-6 space-y-8">
-        {/* Logo/Title - Mobile Optimized */}
-        <div className="animate-fade-in">
-          <h1 className="text-5xl sm:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 mb-4 leading-tight">
-            Universe Mind
-          </h1>
-          <p className="text-lg sm:text-xl text-gray-300 font-light tracking-wide max-w-sm mx-auto leading-relaxed">
-            Discover infinite knowledge, one story at a time
-          </p>
+    <div className="p-6 space-y-8">
+      {/* Quick Picks */}
+      <section>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-2xl font-bold text-white">Quick picks</h2>
+          <button className="text-[#aaaaaa] hover:text-white text-sm font-medium">
+            Show all
+          </button>
         </div>
-
-        {/* Main Explore Button - Large & Thumb-Friendly */}
-        <div className="animate-fade-in-delay-1">
-          <Link
-            to="/explore"
-            className="group inline-flex items-center justify-center space-x-4 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-12 py-6 rounded-3xl font-bold text-xl shadow-2xl shadow-blue-500/25 transition-all duration-300 active:scale-95 transform min-w-[280px]"
-          >
-            <Search className="h-7 w-7 group-hover:rotate-12 transition-transform duration-300" />
-            <span>Explore Books</span>
-            <Sparkles className="h-6 w-6 group-hover:animate-pulse transition-all duration-300" />
-          </Link>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {quickPicks.map((book) => (
+            <Link
+              key={book.id}
+              to={`/reader/${book.id}`}
+              className="group bg-[#1a1a1a] hover:bg-[#272727] rounded-lg p-3 flex items-center space-x-4 transition-colors"
+            >
+              <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
+                <img
+                  src={book.coverUrl}
+                  alt={book.title}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-white font-medium truncate">{book.title}</p>
+                <p className="text-[#aaaaaa] text-sm truncate">{book.author}</p>
+              </div>
+              <button className="opacity-0 group-hover:opacity-100 w-8 h-8 bg-[#ff0000] hover:bg-[#cc0000] rounded-full flex items-center justify-center transition-all">
+                <Play className="h-4 w-4 text-white ml-0.5" />
+              </button>
+            </Link>
+          ))}
         </div>
+      </section>
 
-        {/* Features - Mobile Stacked */}
-        <div className="space-y-4 animate-fade-in-delay-2 max-w-sm mx-auto">
-          <div className="bg-gray-800/40 backdrop-blur-sm border border-gray-700/30 rounded-2xl p-6 transition-all duration-300 active:scale-95">
-            <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center">
-                <BookOpen className="h-6 w-6 text-white" />
-              </div>
-              <div className="text-left">
-                <h3 className="text-lg font-semibold text-white mb-1">Vast Library</h3>
-                <p className="text-gray-400 text-sm">Thousands of books to explore</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-gray-800/40 backdrop-blur-sm border border-gray-700/30 rounded-2xl p-6 transition-all duration-300 active:scale-95">
-            <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center">
-                <Brain className="h-6 w-6 text-white" />
-              </div>
-              <div className="text-left">
-                <h3 className="text-lg font-semibold text-white mb-1">Smart Reading</h3>
-                <p className="text-gray-400 text-sm">AI-powered recommendations</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-gray-800/40 backdrop-blur-sm border border-gray-700/30 rounded-2xl p-6 transition-all duration-300 active:scale-95">
-            <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-teal-500 rounded-2xl flex items-center justify-center">
-                <Users className="h-6 w-6 text-white" />
-              </div>
-              <div className="text-left">
-                <h3 className="text-lg font-semibold text-white mb-1">Community</h3>
-                <p className="text-gray-400 text-sm">Connect with fellow readers</p>
-              </div>
-            </div>
-          </div>
+      {/* Recently Played */}
+      <section>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-2xl font-bold text-white">Recently played</h2>
+          <button className="text-[#aaaaaa] hover:text-white text-sm font-medium">
+            Show all
+          </button>
         </div>
-      </div>
+        
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+          {recentlyPlayed.map((book) => (
+            <Link
+              key={book.id}
+              to={`/reader/${book.id}`}
+              className="group"
+            >
+              <div className="relative mb-3">
+                <div className="aspect-square rounded-lg overflow-hidden bg-[#272727]">
+                  <img
+                    src={book.coverUrl}
+                    alt={book.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                </div>
+                <button className="absolute bottom-2 right-2 w-10 h-10 bg-[#ff0000] hover:bg-[#cc0000] rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+                  <Play className="h-5 w-5 text-white ml-0.5" />
+                </button>
+              </div>
+              <div>
+                <p className="text-white font-medium text-sm mb-1 line-clamp-2">{book.title}</p>
+                <p className="text-[#aaaaaa] text-xs line-clamp-1">{book.author}</p>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* Made for You */}
+      <section>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-2xl font-bold text-white">Made for you</h2>
+          <button className="text-[#aaaaaa] hover:text-white text-sm font-medium">
+            Show all
+          </button>
+        </div>
+        
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+          {madeForYou.map((book) => (
+            <Link
+              key={book.id}
+              to={`/reader/${book.id}`}
+              className="group"
+            >
+              <div className="relative mb-3">
+                <div className="aspect-square rounded-lg overflow-hidden bg-[#272727]">
+                  <img
+                    src={book.coverUrl}
+                    alt={book.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                </div>
+                <button className="absolute bottom-2 right-2 w-10 h-10 bg-[#ff0000] hover:bg-[#cc0000] rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+                  <Play className="h-5 w-5 text-white ml-0.5" />
+                </button>
+              </div>
+              <div>
+                <p className="text-white font-medium text-sm mb-1 line-clamp-2">{book.title}</p>
+                <p className="text-[#aaaaaa] text-xs line-clamp-1">{book.author}</p>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* Trending */}
+      <section>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-2xl font-bold text-white">Trending</h2>
+          <button className="text-[#aaaaaa] hover:text-white text-sm font-medium">
+            Show all
+          </button>
+        </div>
+        
+        <div className="space-y-2">
+          {books.slice(0, 5).map((book, index) => (
+            <Link
+              key={book.id}
+              to={`/reader/${book.id}`}
+              className="group flex items-center space-x-4 p-2 hover:bg-[#1a1a1a] rounded-lg transition-colors"
+            >
+              <div className="w-6 text-center">
+                <span className="text-[#aaaaaa] text-sm font-medium">{index + 1}</span>
+              </div>
+              <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
+                <img
+                  src={book.coverUrl}
+                  alt={book.title}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-white font-medium truncate">{book.title}</p>
+                <p className="text-[#aaaaaa] text-sm truncate">{book.author}</p>
+              </div>
+              <div className="flex items-center space-x-2">
+                <span className="text-[#aaaaaa] text-sm">4:32</span>
+                <button className="opacity-0 group-hover:opacity-100 p-1 hover:bg-[#272727] rounded-full transition-all">
+                  <MoreHorizontal className="h-4 w-4 text-[#aaaaaa]" />
+                </button>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
     </div>
   );
 };

@@ -60,14 +60,14 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onSwitchMo
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
       
-      <div className="relative bg-gray-900 rounded-2xl p-8 w-full max-w-md mx-4 shadow-2xl border border-gray-700">
+      <div className="relative bg-[#181818] rounded-2xl p-8 w-full max-w-md mx-4 shadow-2xl border border-[#272727]">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold text-white">
             {mode === 'login' ? 'Welcome Back' : 'Join Universe Mind'}
           </h2>
           <button
             onClick={onClose}
-            className="p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-colors"
+            className="p-2 text-[#aaaaaa] hover:text-white hover:bg-[#272727] rounded-lg transition-colors"
           >
             <X className="h-6 w-6" />
           </button>
@@ -76,7 +76,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onSwitchMo
         <form onSubmit={handleSubmit} className="space-y-4">
           {mode === 'register' && (
             <div>
-              <label htmlFor="username" className="block text-sm font-medium text-gray-300 mb-2">
+              <label htmlFor="username" className="block text-sm font-medium text-[#aaaaaa] mb-2">
                 Username
               </label>
               <input
@@ -86,14 +86,14 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onSwitchMo
                 value={formData.username}
                 onChange={handleInputChange}
                 required
-                className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                className="w-full px-4 py-3 bg-[#1a1a1a] border border-[#272727] rounded-lg text-white placeholder-[#aaaaaa] focus:outline-none focus:ring-2 focus:ring-[#ff0000] focus:border-transparent transition-all duration-200"
                 placeholder="Choose a username"
               />
             </div>
           )}
 
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
+            <label htmlFor="email" className="block text-sm font-medium text-[#aaaaaa] mb-2">
               Email
             </label>
             <input
@@ -103,13 +103,13 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onSwitchMo
               value={formData.email}
               onChange={handleInputChange}
               required
-              className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+              className="w-full px-4 py-3 bg-[#1a1a1a] border border-[#272727] rounded-lg text-white placeholder-[#aaaaaa] focus:outline-none focus:ring-2 focus:ring-[#ff0000] focus:border-transparent transition-all duration-200"
               placeholder="Enter your email"
             />
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">
+            <label htmlFor="password" className="block text-sm font-medium text-[#aaaaaa] mb-2">
               Password
             </label>
             <input
@@ -119,32 +119,32 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onSwitchMo
               value={formData.password}
               onChange={handleInputChange}
               required
-              className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+              className="w-full px-4 py-3 bg-[#1a1a1a] border border-[#272727] rounded-lg text-white placeholder-[#aaaaaa] focus:outline-none focus:ring-2 focus:ring-[#ff0000] focus:border-transparent transition-all duration-200"
               placeholder="Enter your password"
             />
           </div>
 
           {error && (
-            <div className="p-3 bg-red-900/20 border border-red-500/20 rounded-lg">
-              <p className="text-red-400 text-sm">{error}</p>
+            <div className="p-3 bg-[#ff0000]/20 border border-[#ff0000]/20 rounded-lg">
+              <p className="text-[#ff0000] text-sm">{error}</p>
             </div>
           )}
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:from-gray-600 disabled:to-gray-600 text-white py-3 px-4 rounded-lg font-medium transition-all duration-200 disabled:cursor-not-allowed"
+            className="w-full bg-[#ff0000] hover:bg-[#cc0000] disabled:bg-[#666666] text-white py-3 px-4 rounded-full font-medium transition-all duration-200 disabled:cursor-not-allowed"
           >
             {loading ? 'Please wait...' : mode === 'login' ? 'Sign In' : 'Create Account'}
           </button>
         </form>
 
         <div className="mt-6 text-center">
-          <p className="text-gray-400">
+          <p className="text-[#aaaaaa]">
             {mode === 'login' ? "Don't have an account? " : "Already have an account? "}
             <button
               onClick={() => onSwitchMode(mode === 'login' ? 'register' : 'login')}
-              className="text-blue-400 hover:text-blue-300 font-medium transition-colors"
+              className="text-[#ff0000] hover:text-[#cc0000] font-medium transition-colors"
             >
               {mode === 'login' ? 'Sign up' : 'Sign in'}
             </button>
@@ -152,8 +152,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode, onSwitchMo
         </div>
 
         {mode === 'login' && (
-          <div className="mt-4 p-3 bg-blue-900/20 border border-blue-500/20 rounded-lg">
-            <p className="text-blue-400 text-sm">
+          <div className="mt-4 p-3 bg-[#ff0000]/20 border border-[#ff0000]/20 rounded-lg">
+            <p className="text-[#ff0000] text-sm">
               <strong>Demo:</strong> Use admin@universe.com for admin access
             </p>
           </div>

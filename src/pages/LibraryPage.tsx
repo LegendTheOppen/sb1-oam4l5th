@@ -1,28 +1,30 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { BookOpen, Heart, Clock, TrendingUp } from 'lucide-react';
+import { Play, Heart, Download, MoreHorizontal, Grid3X3, List } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useBooks } from '../contexts/BookContext';
 
 const LibraryPage: React.FC = () => {
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [activeFilter, setActiveFilter] = useState('Recently added');
   const { user } = useAuth();
   const { books } = useBooks();
 
+  const filters = ['Recently added', 'Recently played', 'A-Z', 'Creator'];
+
   if (!user) {
     return (
-      <div className="min-h-screen pt-20 flex items-center justify-center">
-        <div className="text-center max-w-md mx-auto px-4">
-          <BookOpen className="h-16 w-16 text-gray-600 mx-auto mb-4" />
-          <h2 className="text-2xl font-semibold text-white mb-4">Access Your Library</h2>
-          <p className="text-gray-400 mb-6">
-            Sign in to view your favorite books, reading progress, and personalized recommendations.
+      <div className="p-6 flex items-center justify-center min-h-[60vh]">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-white mb-4">Sign in to access your library</h2>
+          <p className="text-[#aaaaaa] mb-6">
+            Keep track of your favorite books and reading progress
           </p>
           <Link
             to="/explore"
-            className="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+            className="bg-[#ff0000] hover:bg-[#cc0000] text-white px-6 py-3 rounded-full font-medium transition-colors"
           >
-            <BookOpen className="h-5 w-5 mr-2" />
-            Explore Books
+            Explore books
           </Link>
         </div>
       </div>
@@ -34,164 +36,208 @@ const LibraryPage: React.FC = () => {
     user.readingProgress[book.id] !== undefined && 
     user.readingProgress[book.id] < book.content.length - 1
   );
-  const completedBooks = books.filter(book => 
-    user.readingProgress[book.id] === book.content.length - 1
-  );
 
   return (
-    <div className="min-h-screen pt-20 pb-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400 mb-4">
-            My Library
-          </h1>
-          <p className="text-xl text-gray-300">
-            Welcome back, {user.username}! Continue your reading journey.
-          </p>
+    <div className="p-6">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-3xl font-bold text-white">Your Library</h1>
+        <div className="flex items-center space-x-2">
+          <button
+            onClick={() => setViewMode('grid')}
+            className={`p-2 rounded-lg transition-colors ${
+              viewMode === 'grid' ? 'bg-[#272727] text-white' : 'text-[#aaaaaa] hover:text-white'
+            }`}
+          >
+            <Grid3X3 className="h-5 w-5" />
+          </button>
+          <button
+            onClick={() => setViewMode('list')}
+            className={`p-2 rounded-lg transition-colors ${
+              viewMode === 'list' ? 'bg-[#272727] text-white' : 'text-[#aaaaaa] hover:text-white'
+            }`}
+          >
+            <List className="h-5 w-5" />
+          </button>
         </div>
+      </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          <div className="bg-gradient-to-br from-blue-600/20 to-blue-800/20 border border-blue-500/20 rounded-2xl p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-blue-400 text-sm font-medium">In Progress</p>
-                <p className="text-3xl font-bold text-white">{booksInProgress.length}</p>
-              </div>
-              <Clock className="h-12 w-12 text-blue-400" />
-            </div>
+      {/* Filter Chips */}
+      <div className="flex space-x-2 mb-6">
+        {filters.map((filter) => (
+          <button
+            key={filter}
+            onClick={() => setActiveFilter(filter)}
+            className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+              activeFilter === filter
+                ? 'bg-white text-black'
+                : 'bg-[#272727] text-[#aaaaaa] hover:bg-[#3a3a3a] hover:text-white'
+            }`}
+          >
+            {filter}
+          </button>
+        ))}
+      </div>
+
+      {/* Quick Actions */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+        <div className="bg-gradient-to-r from-[#ff0000] to-[#cc0000] rounded-lg p-4 flex items-center space-x-4">
+          <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
+            <Heart className="h-6 w-6 text-white" />
           </div>
-
-          <div className="bg-gradient-to-br from-purple-600/20 to-purple-800/20 border border-purple-500/20 rounded-2xl p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-purple-400 text-sm font-medium">Favorites</p>
-                <p className="text-3xl font-bold text-white">{favoriteBooks.length}</p>
-              </div>
-              <Heart className="h-12 w-12 text-purple-400" />
-            </div>
-          </div>
-
-          <div className="bg-gradient-to-br from-green-600/20 to-green-800/20 border border-green-500/20 rounded-2xl p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-green-400 text-sm font-medium">Completed</p>
-                <p className="text-3xl font-bold text-white">{completedBooks.length}</p>
-              </div>
-              <TrendingUp className="h-12 w-12 text-green-400" />
-            </div>
+          <div>
+            <h3 className="text-white font-semibold">Liked Books</h3>
+            <p className="text-white/80 text-sm">{favoriteBooks.length} books</p>
           </div>
         </div>
+        
+        <div className="bg-gradient-to-r from-[#1a1a1a] to-[#272727] rounded-lg p-4 flex items-center space-x-4">
+          <div className="w-12 h-12 bg-white/10 rounded-lg flex items-center justify-center">
+            <Download className="h-6 w-6 text-white" />
+          </div>
+          <div>
+            <h3 className="text-white font-semibold">Downloaded</h3>
+            <p className="text-[#aaaaaa] text-sm">0 books</p>
+          </div>
+        </div>
+      </div>
 
-        {/* Continue Reading */}
-        {booksInProgress.length > 0 && (
-          <section className="mb-12">
-            <h2 className="text-2xl font-semibold text-white mb-6 flex items-center">
-              <Clock className="h-6 w-6 mr-2 text-blue-400" />
-              Continue Reading
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {booksInProgress.map((book) => {
-                const progress = user.readingProgress[book.id] || 0;
-                const progressPercent = Math.round(((progress + 1) / book.content.length) * 100);
-                
-                return (
-                  <div key={book.id} className="bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 rounded-2xl overflow-hidden hover:border-gray-600/50 transition-all duration-300 hover:scale-105 group">
-                    <div className="relative h-32">
+      {/* Continue Reading */}
+      {booksInProgress.length > 0 && (
+        <section className="mb-8">
+          <h2 className="text-xl font-bold text-white mb-4">Continue reading</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            {booksInProgress.map((book) => {
+              const progress = user.readingProgress[book.id] || 0;
+              const progressPercent = Math.round(((progress + 1) / book.content.length) * 100);
+              
+              return (
+                <Link
+                  key={book.id}
+                  to={`/reader/${book.id}`}
+                  className="group"
+                >
+                  <div className="relative mb-3">
+                    <div className="aspect-square rounded-lg overflow-hidden bg-[#272727]">
                       <img
                         src={book.coverUrl}
                         alt={book.title}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-gray-900/80 to-transparent" />
                     </div>
-                    
-                    <div className="p-4">
-                      <h3 className="font-semibold text-white mb-2">{book.title}</h3>
-                      <p className="text-gray-400 text-sm mb-3">{book.author}</p>
-                      
-                      <div className="mb-4">
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="text-xs text-gray-400">Progress</span>
-                          <span className="text-xs text-gray-400">{progressPercent}%</span>
-                        </div>
-                        <div className="w-full bg-gray-700 rounded-full h-2">
-                          <div 
-                            className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full transition-all duration-300"
-                            style={{ width: `${progressPercent}%` }}
-                          />
-                        </div>
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2 rounded-b-lg">
+                      <div className="w-full bg-white/20 rounded-full h-1 mb-1">
+                        <div 
+                          className="bg-[#ff0000] rounded-full h-1 transition-all duration-300"
+                          style={{ width: `${progressPercent}%` }}
+                        />
                       </div>
-                      
-                      <Link
-                        to={`/reader/${book.id}`}
-                        className="block w-full bg-blue-600 hover:bg-blue-700 text-white text-center py-2 px-4 rounded-lg font-medium transition-colors"
-                      >
-                        Continue Reading
-                      </Link>
+                      <span className="text-white text-xs">{progressPercent}%</span>
                     </div>
+                    <button className="absolute top-2 right-2 w-10 h-10 bg-[#ff0000] hover:bg-[#cc0000] rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
+                      <Play className="h-5 w-5 text-white ml-0.5" />
+                    </button>
                   </div>
-                );
-              })}
-            </div>
-          </section>
-        )}
+                  <div>
+                    <p className="text-white font-medium text-sm mb-1 line-clamp-2">{book.title}</p>
+                    <p className="text-[#aaaaaa] text-xs line-clamp-1">{book.author}</p>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
-        {/* Favorite Books */}
-        {favoriteBooks.length > 0 && (
-          <section className="mb-12">
-            <h2 className="text-2xl font-semibold text-white mb-6 flex items-center">
-              <Heart className="h-6 w-6 mr-2 text-purple-400" />
-              Favorite Books
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      {/* Favorite Books */}
+      {favoriteBooks.length > 0 && (
+        <section>
+          <h2 className="text-xl font-bold text-white mb-4">Made for you</h2>
+          
+          {viewMode === 'grid' ? (
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
               {favoriteBooks.map((book) => (
-                <div key={book.id} className="bg-gray-800/50 backdrop-blur-sm border border-gray-700/50 rounded-2xl overflow-hidden hover:border-gray-600/50 transition-all duration-300 hover:scale-105 group">
-                  <div className="relative h-48">
+                <Link
+                  key={book.id}
+                  to={`/reader/${book.id}`}
+                  className="group"
+                >
+                  <div className="relative mb-3">
+                    <div className="aspect-square rounded-lg overflow-hidden bg-[#272727]">
+                      <img
+                        src={book.coverUrl}
+                        alt={book.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    </div>
+                    <button className="absolute bottom-2 right-2 w-10 h-10 bg-[#ff0000] hover:bg-[#cc0000] rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+                      <Play className="h-5 w-5 text-white ml-0.5" />
+                    </button>
+                  </div>
+                  <div>
+                    <p className="text-white font-medium text-sm mb-1 line-clamp-2">{book.title}</p>
+                    <p className="text-[#aaaaaa] text-xs line-clamp-1">{book.author}</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {favoriteBooks.map((book, index) => (
+                <div
+                  key={book.id}
+                  className="group flex items-center space-x-4 p-2 hover:bg-[#1a1a1a] rounded-lg transition-colors"
+                >
+                  <div className="w-6 text-center">
+                    <span className="text-[#aaaaaa] text-sm font-medium">{index + 1}</span>
+                  </div>
+                  <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
                     <img
                       src={book.coverUrl}
                       alt={book.title}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      className="w-full h-full object-cover"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-gray-900/80 to-transparent" />
                   </div>
-                  
-                  <div className="p-4">
-                    <h3 className="font-semibold text-white mb-1">{book.title}</h3>
-                    <p className="text-gray-400 text-sm mb-3">{book.author}</p>
-                    
+                  <div className="flex-1 min-w-0">
                     <Link
                       to={`/reader/${book.id}`}
-                      className="block w-full bg-purple-600 hover:bg-purple-700 text-white text-center py-2 px-4 rounded-lg font-medium transition-colors"
+                      className="text-white font-medium hover:underline truncate block"
                     >
-                      Read
+                      {book.title}
                     </Link>
+                    <p className="text-[#aaaaaa] text-sm truncate">{book.author}</p>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <button className="opacity-0 group-hover:opacity-100 p-1 hover:bg-[#272727] rounded-full transition-all text-[#ff0000]">
+                      <Heart className="h-4 w-4 fill-current" />
+                    </button>
+                    <span className="text-[#aaaaaa] text-sm">4:32</span>
+                    <button className="opacity-0 group-hover:opacity-100 p-1 hover:bg-[#272727] rounded-full transition-all">
+                      <MoreHorizontal className="h-4 w-4 text-[#aaaaaa]" />
+                    </button>
                   </div>
                 </div>
               ))}
             </div>
-          </section>
-        )}
+          )}
+        </section>
+      )}
 
-        {/* Empty State */}
-        {favoriteBooks.length === 0 && booksInProgress.length === 0 && completedBooks.length === 0 && (
-          <div className="text-center py-16">
-            <BookOpen className="h-16 w-16 text-gray-600 mx-auto mb-4" />
-            <h3 className="text-2xl font-semibold text-gray-400 mb-2">Your library is empty</h3>
-            <p className="text-gray-500 mb-6">
-              Start exploring books to build your personal library
-            </p>
-            <Link
-              to="/explore"
-              className="inline-flex items-center bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
-            >
-              <BookOpen className="h-5 w-5 mr-2" />
-              Explore Books
-            </Link>
-          </div>
-        )}
-      </div>
+      {/* Empty State */}
+      {favoriteBooks.length === 0 && booksInProgress.length === 0 && (
+        <div className="text-center py-16">
+          <h3 className="text-2xl font-bold text-white mb-2">Let's find some books for your library</h3>
+          <p className="text-[#aaaaaa] mb-6">
+            Books you like will appear here
+          </p>
+          <Link
+            to="/explore"
+            className="bg-[#ff0000] hover:bg-[#cc0000] text-white px-6 py-3 rounded-full font-medium transition-colors"
+          >
+            Find books
+          </Link>
+        </div>
+      )}
     </div>
   );
 };

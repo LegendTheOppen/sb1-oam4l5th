@@ -2,7 +2,9 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { BookProvider } from './contexts/BookContext';
-import BottomNavigation from './components/BottomNavigation';
+import Sidebar from './components/Sidebar';
+import TopBar from './components/TopBar';
+import BottomPlayer from './components/BottomPlayer';
 import HomePage from './pages/HomePage';
 import ExplorePage from './pages/ExplorePage';
 import ReaderPage from './pages/ReaderPage';
@@ -14,20 +16,29 @@ function App() {
     <AuthProvider>
       <BookProvider>
         <Router>
-          <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900/20 to-gray-900 relative overflow-hidden">
-            {/* Background Effects */}
-            <div className="fixed inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(120,119,198,0.1),transparent_50%)] pointer-events-none" />
-            <div className="fixed inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(59,130,246,0.08),transparent_50%)] pointer-events-none" />
+          <div className="min-h-screen bg-[#0f0f0f] text-white flex">
+            {/* Sidebar */}
+            <Sidebar />
             
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/explore" element={<ExplorePage />} />
-              <Route path="/reader/:bookId" element={<ReaderPage />} />
-              <Route path="/library" element={<LibraryPage />} />
-              <Route path="/admin" element={<AdminPage />} />
-            </Routes>
+            {/* Main Content */}
+            <div className="flex-1 flex flex-col">
+              {/* Top Bar */}
+              <TopBar />
+              
+              {/* Page Content */}
+              <main className="flex-1 overflow-y-auto pb-20">
+                <Routes>
+                  <Route path="/" element={<HomePage />} />
+                  <Route path="/explore" element={<ExplorePage />} />
+                  <Route path="/reader/:bookId" element={<ReaderPage />} />
+                  <Route path="/library" element={<LibraryPage />} />
+                  <Route path="/admin" element={<AdminPage />} />
+                </Routes>
+              </main>
+            </div>
             
-            <BottomNavigation />
+            {/* Bottom Player */}
+            <BottomPlayer />
           </div>
         </Router>
       </BookProvider>
