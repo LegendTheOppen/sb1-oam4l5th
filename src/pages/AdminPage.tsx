@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Upload, BookOpen, Trash2, Edit, Users, MessageSquare } from 'lucide-react';
+import { Upload, BookOpen, Trash2, Edit, Users, MessageSquare, FileText, CheckCircle, AlertCircle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useBooks, type Book } from '../contexts/BookContext';
 import { Navigate } from 'react-router-dom';
+import { PDFProcessor } from '../utils/pdfProcessor';
 
 const AdminPage: React.FC = () => {
   const { user } = useAuth();
@@ -17,6 +18,9 @@ const AdminPage: React.FC = () => {
     tags: ['']
   });
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [processingStatus, setProcessingStatus] = useState<'idle' | 'processing' | 'success' | 'error'>('idle');
+  const [processingMessage, setProcessingMessage] = useState('');
 
   if (!user || !user.isAdmin) {
     return <Navigate to="/" replace />;
@@ -74,14 +78,64 @@ const AdminPage: React.FC = () => {
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setUploadedFile(file);
-      // In a real app, you would process the PDF here
-      // For now, we'll just set the title to the filename
+      if (file.type === 'application/pdf') {
+        setUploadedFile(file);
+        processPDF(file);
+      } else {
+        alert('Please upload a PDF file only.');
+      }
+    }
+  };
+
+  const processPDF = async (file: File) => {
+    setIsProcessing(true);
+    setProcessingStatus('processing');
+    setProcessingMessage('Processing PDF file...');
+    
+    try {
+      // Extract text and metadata from PDF
+      setProcessingMessage('Extracting text from PDF...');
+      const processedPDF = await PDFProcessor.extractTextFromPDF(file);
+      
+      // Generate cover image
+      setProcessingMessage('Generating cover image...');
+      const coverUrl = await PDFProcessor.generateCoverFromPDF(file);
+      
+      // Update form with extracted data
       setBookForm(prev => ({
         ...prev,
-        title: file.name.replace('.pdf', '')
+        title: processedPDF.title,
+        author: processedPDF.author,
+        description: `Automatically imported from PDF. ${processedPDF.totalPages} pages.`,
+        coverUrl: coverUrl,
+        content: processedPDF.content,
+        tags: ['pdf', 'imported']
       }));
+      
+      setProcessingStatus('success');
+      setProcessingMessage(`Successfully processed ${processedPDF.totalPages} pages into ${processedPDF.content.length} chapters.`);
+      
+    } catch (error) {
+      console.error('PDF processing error:', error);
+      setProcessingStatus('error');
+      setProcessingMessage(error instanceof Error ? error.message : 'Failed to process PDF file.');
+    } finally {
+      setIsProcessing(false);
     }
+  };
+
+  const clearPDF = () => {
+    setUploadedFile(null);
+    setProcessingStatus('idle');
+    setProcessingMessage('');
+    setBookForm({
+      title: '',
+      author: '',
+      description: '',
+      coverUrl: '',
+      content: [''],
+      tags: ['']
+    });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -176,26 +230,78 @@ const AdminPage: React.FC = () => {
               {/* File Upload */}
               <div className="mb-8">
                 <label className="block text-sm font-medium text-gray-300 mb-3">
-                  PDF Upload (Optional)
+                  PDF Upload
                 </label>
-                <div className="border-2 border-dashed border-gray-600 rounded-xl p-8 text-center hover:border-gray-500 transition-colors">
+                <div className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors ${
+                  processingStatus === 'success' ? 'border-green-500 bg-green-500/10' :
+                  processingStatus === 'error' ? 'border-red-500 bg-red-500/10' :
+                  processingStatus === 'processing' ? 'border-blue-500 bg-blue-500/10' :
+                  'border-gray-600 hover:border-gray-500'
+                }`}>
                   <input
                     type="file"
                     accept=".pdf"
                     onChange={handleFileUpload}
+                    disabled={isProcessing}
                     className="hidden"
                     id="pdf-upload"
                   />
-                  <label htmlFor="pdf-upload" className="cursor-pointer">
-                    <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                    <p className="text-gray-300 mb-2">
-                      {uploadedFile ? uploadedFile.name : 'Click to upload PDF'}
-                    </p>
-                    <p className="text-gray-500 text-sm">
-                      PDF files will be processed automatically
-                    </p>
-                  </label>
+                  
+                  {!uploadedFile ? (
+                    <label htmlFor="pdf-upload" className="cursor-pointer">
+                      <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                      <p className="text-gray-300 mb-2">Click to upload PDF</p>
+                      <p className="text-gray-500 text-sm">
+                        PDF files will be processed automatically and converted to chapters
+                      </p>
+                    </label>
+                  ) : (
+                    <div>
+                      <div className="flex items-center justify-center mb-4">
+                        {processingStatus === 'processing' && (
+                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                        )}
+                        {processingStatus === 'success' && (
+                          <CheckCircle className="h-8 w-8 text-green-500" />
+                        )}
+                        {processingStatus === 'error' && (
+                          <AlertCircle className="h-8 w-8 text-red-500" />
+                        )}
+                        {processingStatus === 'idle' && (
+                          <FileText className="h-8 w-8 text-gray-400" />
+                        )}
+                      </div>
+                      
+                      <p className="text-gray-300 mb-2 font-medium">{uploadedFile.name}</p>
+                      <p className="text-gray-500 text-sm mb-4">{processingMessage}</p>
+                      
+                      <div className="flex space-x-2 justify-center">
+                        <label
+                          htmlFor="pdf-upload"
+                          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors cursor-pointer"
+                        >
+                          Replace PDF
+                        </label>
+                        <button
+                          type="button"
+                          onClick={clearPDF}
+                          className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg text-sm font-medium transition-colors"
+                        >
+                          Clear
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
+                
+                {processingStatus === 'success' && bookForm.content.length > 1 && (
+                  <div className="mt-4 p-4 bg-green-500/20 border border-green-500/20 rounded-lg">
+                    <p className="text-green-400 text-sm">
+                      ✅ PDF processed successfully! Found {bookForm.content.length} chapters. 
+                      You can edit the content below before uploading.
+                    </p>
+                  </div>
+                )}
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-6">
@@ -330,9 +436,10 @@ const AdminPage: React.FC = () => {
 
                 <button
                   type="submit"
-                  className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white py-3 px-4 rounded-lg font-medium transition-all duration-200"
+                  disabled={isProcessing}
+                  className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:from-gray-600 disabled:to-gray-600 text-white py-3 px-4 rounded-lg font-medium transition-all duration-200 disabled:cursor-not-allowed"
                 >
-                  Upload Book
+                  {isProcessing ? 'Processing PDF...' : 'Upload Book'}
                 </button>
               </form>
             </div>
